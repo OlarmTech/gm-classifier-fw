@@ -10,9 +10,12 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.port": "/dev/cu.usbserial-1401",
+    "idf.port": "/dev/cu.usbserial-21101",
     "idf.pythonBinPath": "/Users/alvinreabow/.espressif/python_env/idf5.0_py3.10_env/bin/python",
     "idf.toolsPath": "/Users/alvinreabow/.espressif",
     "idf.flashType": "UART",
-    "idf.monitorBaudRate": "115200"
+    "idf.monitorBaudRate": "115200",
+    "files.associations": {
+        "functional": "cpp"
+    },
 }
