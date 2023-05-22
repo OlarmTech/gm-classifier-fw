@@ -45,13 +45,13 @@ void print_output(float* result);
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
 TfLiteTensor* model_input = nullptr;
-tflite::ErrorReporter *error_reporter;
+tflite::ErrorReporter *error_reporter = nullptr;
 
 // Create an area of memory to use for input, output, and intermediate arrays.
 // The size of this will depend on the model you're using, and may need to be
 // determined by experimentation.
 
-constexpr int kTensorArenaSize = 4 * 1024;
+constexpr int kTensorArenaSize = 2 * 1024;
 uint8_t tensor_arena[kTensorArenaSize];
 float* model_input_buffer = nullptr;
 
@@ -210,8 +210,8 @@ extern "C" void app_main(void)
                 ESP_LOGI(TAG, "%s: %.3f", kCategoryLabels[i],result_buffer[i]);
             }
 
-            for(size_t i = 0; i < kFeatureElementCount; ++i) {model_input_buffer[i] = 0;}
-            for(size_t i = 0; i < kStateCount; ++i) {state_buffer[i] = 0.0;}
+            for (size_t i = 0; i < kFeatureElementCount; ++i) {model_input_buffer[i] = 0;}
+            for (size_t i = 0; i < kStateCount; ++i) {state_buffer[i] = 0.0;}
             running_mean = 0;
             timeout = false;
             state_counts = 0;
