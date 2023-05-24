@@ -6,11 +6,6 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 #include "model.h"
 
-// preallocate a certain amount of memory for input, output, and intermediate
-// arrays. The size required will depend on the model you are using, and may
-// need to be determined by experimentation.
-constexpr int kTensorArenaSize = 4 * 1024;
-
 NeuralNetwork::NeuralNetwork()
 {
     error_reporter = new tflite::MicroErrorReporter();
@@ -18,18 +13,20 @@ NeuralNetwork::NeuralNetwork()
     model = tflite::GetModel(nn_model);
     if (model->version() != TFLITE_SCHEMA_VERSION)
     {
-        TF_LITE_REPORT_ERROR(error_reporter, "Model provided is schema version %d not equal to supported version %d.",
-                             model->version(), TFLITE_SCHEMA_VERSION);
+        TF_LITE_REPORT_ERROR(error_reporter, 
+                             "Model provided is schema version %d not equal to supported version %d.", 
+                             model->version(), 
+                             TFLITE_SCHEMA_VERSION);
         return;
     }
     // This pulls in the operators implementations we need
-    resolver = new tflite::MicroMutableOpResolver<5>();
+    resolver = new tflite::MicroMutableOpResolver<4>();
     resolver->AddFullyConnected();
     resolver->AddMul();
     resolver->AddSub();
     resolver->AddLogistic();
 
-    tensor_arena = (uint8_t *)malloc(kTensorArenaSize);
+    tensor_arena = (uint8_t*) malloc(kTensorArenaSize);
     if (!tensor_arena)
     {
         TF_LITE_REPORT_ERROR(error_reporter, "Could not allocate arena");
@@ -37,8 +34,10 @@ NeuralNetwork::NeuralNetwork()
     }
 
     // Build an interpreter to run the model with.
-    interpreter = new tflite::MicroInterpreter(
-        model, *resolver, tensor_arena, kTensorArenaSize);
+    interpreter = new tflite::MicroInterpreter(model, 
+                                               *resolver, 
+                                               tensor_arena, 
+                                               kTensorArenaSize);
     // Allocate memory from the tensor_arena for the model's tensors.
     TfLiteStatus allocate_status = interpreter->AllocateTensors();
     if (allocate_status != kTfLiteOk)
@@ -53,18 +52,20 @@ NeuralNetwork::NeuralNetwork()
     // Obtain pointers to the model's input and output tensors.
     input = interpreter->input(0);
     // Make sure the input has the properties we expect.
-    if ((input->dims->size != 2) || 
-        (input->dims->data[0] != 1) ||
+    if ((input->dims->size != kInputDims) || 
+        (input->dims->data[0] != kBatchSize) ||
         (input->dims->data[1] != kFeatureElementCount) || 
-        (input->type != kTfLiteFloat32)) {
+        (input->type != kTfLiteFloat32)) 
+    {
         TF_LITE_REPORT_ERROR(error_reporter, "Bad input tensor parameters in model");
         return;
     }
     output = interpreter->output(0);
-    if ((output->dims->size != 2) || 
-        (output->dims->data[0] != 1) ||
+    if ((output->dims->size != kOutputDims) || 
+        (output->dims->data[0] != kBatchSize) ||
         (output->dims->data[1] != kCategoryCount) || 
-        (output->type != kTfLiteFloat32)) {
+        (output->type != kTfLiteFloat32)) 
+    {
         TF_LITE_REPORT_ERROR(error_reporter, "Bad output tensor parameters in model");
         return;
     }

@@ -6,7 +6,6 @@ const char* kCategoryLabels[kCategoryCount] = {
     "closed",
     "closing",
     "collisions",
-    // "courtesylight",
     "open",
     "opening"
 };
